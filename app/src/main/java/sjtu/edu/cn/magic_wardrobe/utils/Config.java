@@ -16,6 +16,8 @@ public class Config {
 
     static public String VIDEO_UPLOAD_URL = BASE_URL + "/upload/video";
 
+    static public String IMAGE_GET_URL = BASE_URL + "/img/";
+
     static public String SOCKET_SITE = "202.120.38.141";
 
     static public int SOCKET_PORT = 5043;

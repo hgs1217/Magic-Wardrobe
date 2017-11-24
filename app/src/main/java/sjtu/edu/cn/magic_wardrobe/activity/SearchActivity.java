@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -13,14 +16,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import sjtu.edu.cn.magic_wardrobe.R;
+import sjtu.edu.cn.magic_wardrobe.model.ImageInfo;
 import sjtu.edu.cn.magic_wardrobe.model.OnceSearchParams;
 import sjtu.edu.cn.magic_wardrobe.model.PostureParams;
 import sjtu.edu.cn.magic_wardrobe.utils.SocketCommunicationUtil;
 import sjtu.edu.cn.magic_wardrobe.utils.ToastUtil;
 import sjtu.edu.cn.magic_wardrobe.utils.ViewUtil;
 import sjtu.edu.cn.magic_wardrobe.widget.PostureView;
+import sjtu.edu.cn.magic_wardrobe.widget.SearchRecyclerViewAdapter;
 
 public class SearchActivity extends BaseActivity {
 
@@ -40,6 +48,8 @@ public class SearchActivity extends BaseActivity {
     EditText editS;
     @BindView(R.id.edit_v)
     EditText editV;
+    @BindView(R.id.recycler_view_search_once)
+    RecyclerView recyclerViewSearch;
     @BindView(R.id.toolbar_title)
     TextView toolbarTitle;
     @BindView(R.id.toolbar_icon)
@@ -55,6 +65,16 @@ public class SearchActivity extends BaseActivity {
     private String onlinePath;
     private Context context;
     private PostureParams params;
+    private SearchRecyclerViewAdapter adapter;
+    private List<String> imgPaths = new ArrayList<>();
+
+    private SearchRecyclerViewAdapter.OnItemClickListener searchOnItemClickListener = new
+            SearchRecyclerViewAdapter.OnItemClickListener() {
+                @Override
+                public void OnItemClick(String path) {
+                }
+            };
+
 
 
     @Override
@@ -114,8 +134,13 @@ public class SearchActivity extends BaseActivity {
         btnOnceSearch.setOnClickListener((view) -> {
             try {
                 OnceSearchParams onceSearchParams = SocketCommunicationUtil.onceSearch(params, onlinePath);
-                // TODO:
                 ToastUtil.showLong("Once Search Success");
+                imgPaths.clear();
+                List<ImageInfo> infos = onceSearchParams.getImgInfos();
+                for (ImageInfo info : infos) {
+                    imgPaths.add(info.getImgUrl());
+                }
+                initRecyclerView(imgPaths);
             } catch (Exception e) {
                 ToastUtil.showLong("Connection Error");
                 e.printStackTrace();
@@ -130,9 +155,15 @@ public class SearchActivity extends BaseActivity {
             editS.clearFocus();
             editV.clearFocus();
         });
+
+        initRecyclerView(imgPaths);
     }
 
-    private void sendCommand(String cmd) {
-
+    private void initRecyclerView(List<String> paths) {
+        adapter = new SearchRecyclerViewAdapter(context, paths);
+        adapter.setOnItemClickListener(searchOnItemClickListener);
+        recyclerViewSearch.setAdapter(adapter);
+        recyclerViewSearch.setLayoutManager(new GridLayoutManager(context, 2));
+        recyclerViewSearch.setItemAnimator(new DefaultItemAnimator());
     }
 }
