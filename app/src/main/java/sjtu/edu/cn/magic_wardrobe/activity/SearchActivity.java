@@ -20,11 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import sjtu.edu.cn.magic_wardrobe.R;
-import sjtu.edu.cn.magic_wardrobe.model.ImageInfo;
-import sjtu.edu.cn.magic_wardrobe.model.OnceSearchParams;
 import sjtu.edu.cn.magic_wardrobe.model.PostureParams;
-import sjtu.edu.cn.magic_wardrobe.utils.SocketCommunicationUtil;
+import sjtu.edu.cn.magic_wardrobe.model.response.ImageInfo;
+import sjtu.edu.cn.magic_wardrobe.model.response.OnceSearchResponse;
+import sjtu.edu.cn.magic_wardrobe.model.response.PostureResponse;
+import sjtu.edu.cn.magic_wardrobe.network.NetworkAPI;
+import sjtu.edu.cn.magic_wardrobe.network.NetworkFailureHandler;
+import sjtu.edu.cn.magic_wardrobe.network.RetrofitClient;
 import sjtu.edu.cn.magic_wardrobe.utils.ToastUtil;
 import sjtu.edu.cn.magic_wardrobe.utils.ViewUtil;
 import sjtu.edu.cn.magic_wardrobe.widget.PostureView;
@@ -68,14 +73,17 @@ public class SearchActivity extends BaseActivity {
     private SearchRecyclerViewAdapter adapter;
     private List<String> imgPaths = new ArrayList<>();
 
+    BitmapFactory.Options options;
+    Bitmap bitmap;
+    double scalar;
+    private NetworkAPI api;
+
     private SearchRecyclerViewAdapter.OnItemClickListener searchOnItemClickListener = new
             SearchRecyclerViewAdapter.OnItemClickListener() {
                 @Override
                 public void OnItemClick(String path) {
                 }
             };
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +94,7 @@ public class SearchActivity extends BaseActivity {
         onlinePath = intent.getStringExtra(UploadActivity.ONLINE_PATH);
 
         context = this;
+        api = RetrofitClient.getNetworkAPI();
 
         initView();
     }
@@ -101,50 +110,18 @@ public class SearchActivity extends BaseActivity {
             onBackPressed();
         });
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
+        options = new BitmapFactory.Options();
         options.inSampleSize = 8;
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
+        bitmap = BitmapFactory.decodeFile(filePath, options);
         imgPosture.setImageBitmap(bitmap);
-
-        double scalar = (double) ViewUtil.dpToPx(POSTURE_HEIGHT) / bitmap.getHeight();
+        scalar = (double) ViewUtil.dpToPx(POSTURE_HEIGHT) / bitmap.getHeight();
 
         btnPostureAnalysis.setOnClickListener((view) -> {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        params = SocketCommunicationUtil.postureAnalysis(onlinePath);
-                        viewPosture.setParams(context,
-                                ViewUtil.getScreenWidth() / 2,
-                                (int) (scalar * bitmap.getWidth()),
-                                ViewUtil.dpToPx(300),
-                                imgPosture.getDrawable().getIntrinsicWidth() * options.inSampleSize,
-                                imgPosture.getDrawable().getIntrinsicHeight() * options.inSampleSize,
-                                params);
-                        btnOnceSearch.setEnabled(true);
-                        btnOnceSearch.setBackgroundColor(getResources().getColor(R.color.btn_bg));
-                    } catch (Exception e) {
-                        ToastUtil.showLong("Connection Error");
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
+            postureAnalysis();
         });
 
         btnOnceSearch.setOnClickListener((view) -> {
-            try {
-                OnceSearchParams onceSearchParams = SocketCommunicationUtil.onceSearch(params, onlinePath);
-                ToastUtil.showLong("Once Search Success");
-                imgPaths.clear();
-                List<ImageInfo> infos = onceSearchParams.getImgInfos();
-                for (ImageInfo info : infos) {
-                    imgPaths.add(info.getImgUrl());
-                }
-                initRecyclerView(imgPaths);
-            } catch (Exception e) {
-                ToastUtil.showLong("Connection Error");
-                e.printStackTrace();
-            }
+            onceSearch();
         });
 
         mainLayout.setOnClickListener((View v) -> {
@@ -165,5 +142,48 @@ public class SearchActivity extends BaseActivity {
         recyclerViewSearch.setAdapter(adapter);
         recyclerViewSearch.setLayoutManager(new GridLayoutManager(context, 2));
         recyclerViewSearch.setItemAnimator(new DefaultItemAnimator());
+    }
+
+    private void postureAnalysis() {
+        addSubscription(api.postureAnalysis(-1, -1, onlinePath)
+                .flatMap(NetworkFailureHandler.httpFailureFilter)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(response -> ((PostureResponse) response).getPostureParams())
+                .subscribe(params -> {
+                    ToastUtil.showLong("Posture Response Success");
+                    this.params = params;
+
+                    viewPosture.setParams(context,
+                            ViewUtil.getScreenWidth() / 2,
+                            (int) (scalar * bitmap.getWidth()),
+                            ViewUtil.dpToPx(300),
+                            imgPosture.getDrawable().getIntrinsicWidth() * options.inSampleSize,
+                            imgPosture.getDrawable().getIntrinsicHeight() * options.inSampleSize,
+                            params);
+                    btnOnceSearch.setEnabled(true);
+                    btnOnceSearch.setBackgroundColor(getResources().getColor(R.color.btn_bg));
+                }, NetworkFailureHandler.basicErrorHandler));
+    }
+
+    private void onceSearch() {
+        addSubscription(api.onceSearch(-1, -1, onlinePath, params.getX(), params.getY(),
+                params.getWidth(), params.getHeight(), 3)
+                .flatMap(NetworkFailureHandler.httpFailureFilter)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(response -> ((OnceSearchResponse) response).getOnceSearchParams())
+                .subscribe(params -> {
+                    ToastUtil.showLong("Once Search Success");
+                    imgPaths.clear();
+                    List<ImageInfo> infos = params.getImgInfos();
+                    for (ImageInfo info : infos) {
+                        imgPaths.add(info.getImgUrl());
+                    }
+                    initRecyclerView(imgPaths);
+                    editH.setText(String.valueOf(params.getHue()));
+                    editS.setText(String.valueOf(params.getSaturation()));
+                    editV.setText(String.valueOf(params.getValue()));
+                }, NetworkFailureHandler.basicErrorHandler));
     }
 }

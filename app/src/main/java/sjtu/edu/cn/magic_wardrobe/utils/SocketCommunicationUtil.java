@@ -1,12 +1,5 @@
 package sjtu.edu.cn.magic_wardrobe.utils;
 
-import android.util.Log;
-
-import sjtu.edu.cn.magic_wardrobe.model.OnceSearchParams;
-import sjtu.edu.cn.magic_wardrobe.model.PostureParams;
-import sjtu.edu.cn.magic_wardrobe.network.SocketClient;
-
-
 /**
  * Created by HgS_1217_ on 2017/11/15.
  */
@@ -30,7 +23,7 @@ import sjtu.edu.cn.magic_wardrobe.network.SocketClient;
  * 3.h;s;v 0~1浮点数
  * <p>
  * <p>
- * 0;-1;-1;122;89;123;247;E:\DB_JD\女装_毛呢大衣\1237957043.jpg;1;2;5;1;2;3;1;1;8;
+ * 0;-1;-1;122;89;123;247;E:\DB_JD\女装_毛呢大衣\1237957043.jpg;3;
  */
 
 public class SocketCommunicationUtil {
@@ -39,44 +32,51 @@ public class SocketCommunicationUtil {
     public static final String TAG = "SocketCommunication";
 
 
-    public static PostureParams postureAnalysis(int gender, int type, String imgUrl) {
-        String[] s = new String[]{"2", String.valueOf(gender), String.valueOf(type), imgUrl};
-        String cmd = "";
-        for (String sub : s) {
-            cmd += (sub + ";");
-        }
-
-        ToastUtil.showLong("Analyzing");
-        SocketClient client = new SocketClient(Config.SOCKET_SITE, Config.SOCKET_PORT);
-        String reply = client.sendMsg(cmd);
-        Log.i(TAG, reply);
-        client.closeSocket();
-        return new PostureParams(reply);
-    }
-
-    public static PostureParams postureAnalysis(String imgUrl) {
-        return postureAnalysis(-1, -1, imgUrl);
-    }
-
-    public static OnceSearchParams onceSearch(int gender, int type, PostureParams params, String imgUrl) {
-        String[] s = new String[]{"0", String.valueOf(gender), String.valueOf(type),
-                String.valueOf(params.getX()), String.valueOf(params.getY()),
-                String.valueOf(params.getWidth()), String.valueOf(params.getHeight()),
-                imgUrl, "1", "2", "5", "1", "2", "3", "1", "1", "8"};
-        String cmd = "";
-        for (String sub : s) {
-            cmd += (sub + ";");
-        }
-
-        ToastUtil.showLong("Searching");
-        SocketClient client = new SocketClient(Config.SOCKET_SITE, Config.SOCKET_PORT);
-        String reply = client.sendMsg(cmd);
-        Log.i(TAG, reply);
-        client.closeSocket();
-        return new OnceSearchParams(reply);
-    }
-
-    public static OnceSearchParams onceSearch(PostureParams params, String imgUrl) {
-        return onceSearch(-1, -1, params, imgUrl);
-    }
+//    public static PostureParams postureAnalysis(int gender, int type, String imgUrl) {
+//        String[] s = new String[]{"2", String.valueOf(gender), String.valueOf(type), imgUrl};
+//        String cmd = "";
+//        for (String sub : s) {
+//            cmd += (sub + ";");
+//        }
+//
+//        ToastUtil.showLong("Analyzing");
+//        SocketClient client = new SocketClient(Config.SOCKET_SITE, Config.SOCKET_PORT);
+//        String reply = client.sendMsg(cmd);
+//        Log.i(TAG, reply);
+//        client.closeSocket();
+//        return new PostureParams(reply);
+//    }
+//
+//    public static PostureParams postureAnalysis(String imgUrl) {
+//        return postureAnalysis(-1, -1, imgUrl);
+//    }
+//
+//    public static OnceSearchParams onceSearch(int gender, int type, PostureParams params, String imgUrl) {
+//        String[] attr = new String[] {
+//                String.valueOf(params.getX()), String.valueOf(params.getY()),
+//                String.valueOf(params.getWidth()), String.valueOf(params.getHeight())};
+//        String attrs = "";
+//        for (String a : attr) {
+//            attrs += (a + ",");
+//        }
+//        attrs = attrs.substring(0, attrs.length()-1);
+//
+//        String[] s = new String[]{"0", String.valueOf(gender), String.valueOf(type), attrs,
+//                imgUrl, "3"};
+//        String cmd = "";
+//        for (String sub : s) {
+//            cmd += (sub + ";");
+//        }
+//
+//        ToastUtil.showLong("Searching");
+//        SocketClient client = new SocketClient(Config.SOCKET_SITE, Config.SOCKET_PORT);
+//        String reply = client.sendMsg(cmd);
+//        Log.i(TAG, reply);
+//        client.closeSocket();
+//        return new OnceSearchParams(reply);
+//    }
+//
+//    public static OnceSearchParams onceSearch(PostureParams params, String imgUrl) {
+//        return onceSearch(-1, -1, params, imgUrl);
+//    }
 }

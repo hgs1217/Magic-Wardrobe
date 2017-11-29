@@ -1,6 +1,9 @@
 package sjtu.edu.cn.magic_wardrobe.model;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import sjtu.edu.cn.magic_wardrobe.model.response.ImageInfo;
 
 /**
  * Created by HgS_1217_ on 2017/11/21.
@@ -8,43 +11,33 @@ import java.util.List;
 
 public class OnceSearchParams {
 
-    private double hue;
-    private double saturation;
-    private double value;
-    private List<Double> attributes;
+    private Double hue;
+    private Double saturation;
+    private Double value;
+    private List<String> attributes;
     private List<ImageInfo> imgInfos;
 
-    public OnceSearchParams(String cmd) {
-        String[] substrings = cmd.split(";");
-        try {
-            hue = Double.parseDouble(substrings[0]);
-            saturation = Double.parseDouble(substrings[1]);
-            value = Double.parseDouble(substrings[2]);
-            int num = Integer.parseInt(substrings[3]);
-            for (int i=0; i<num; ++i) {
-                attributes.add(Double.parseDouble(substrings[4+i]));
-                int k = 4 + num + 3 * i;
-                imgInfos.add(new ImageInfo(substrings[k], Integer.parseInt(substrings[k+1]),
-                        Integer.parseInt(substrings[k+2])));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public OnceSearchParams(Double h, Double s, Double v, List<String> attrs, List<ImageInfo> infos) {
+        hue = h;
+        saturation = s;
+        value = v;
+        attributes = new ArrayList<>(attrs);
+        imgInfos = new ArrayList<>(infos);
     }
 
-    public double getHue() {
+    public Double getHue() {
         return hue;
     }
 
-    public double getSaturation() {
+    public Double getSaturation() {
         return saturation;
     }
 
-    public double getValue() {
+    public Double getValue() {
         return value;
     }
 
-    public List<Double> getAttributes() {
+    public List<String> getAttributes() {
         return attributes;
     }
 
