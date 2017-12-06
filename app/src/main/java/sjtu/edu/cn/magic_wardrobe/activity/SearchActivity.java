@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,6 +35,9 @@ import sjtu.edu.cn.magic_wardrobe.utils.ToastUtil;
 import sjtu.edu.cn.magic_wardrobe.utils.ViewUtil;
 import sjtu.edu.cn.magic_wardrobe.widget.PostureView;
 import sjtu.edu.cn.magic_wardrobe.widget.SearchRecyclerViewAdapter;
+import sjtu.edu.cn.magic_wardrobe.widget.ViewDragFrameLayout;
+
+import static sjtu.edu.cn.magic_wardrobe.utils.ViewUtil.dpToPx;
 
 public class SearchActivity extends BaseActivity {
 
@@ -53,6 +57,16 @@ public class SearchActivity extends BaseActivity {
     EditText editS;
     @BindView(R.id.edit_v)
     EditText editV;
+    @BindView(R.id.mark_posture_1)
+    ImageView markPosture1;
+    @BindView(R.id.mark_posture_2)
+    ImageView markPosture2;
+    @BindView(R.id.mark_posture_3)
+    ImageView markPosture3;
+    @BindView(R.id.mark_posture_4)
+    ImageView markPosture4;
+    @BindView(R.id.drag_posture)
+    ViewDragFrameLayout dragPosture;
     @BindView(R.id.recycler_view_search_once)
     RecyclerView recyclerViewSearch;
     @BindView(R.id.toolbar_title)
@@ -64,6 +78,7 @@ public class SearchActivity extends BaseActivity {
     public static final String TAG = "SearchActivity";
 
     public static final int POSTURE_HEIGHT = 230;
+    public static final int POSTURE_MARK_SIZE = 14;
 
 
     private String filePath;
@@ -73,10 +88,11 @@ public class SearchActivity extends BaseActivity {
     private SearchRecyclerViewAdapter adapter;
     private List<String> imgPaths = new ArrayList<>();
 
-    BitmapFactory.Options options;
-    Bitmap bitmap;
-    double scalar;
+    private BitmapFactory.Options options;
+    private Bitmap bitmap;
+    private double scalar;
     private NetworkAPI api;
+    private int markOffset;
 
     private SearchRecyclerViewAdapter.OnItemClickListener searchOnItemClickListener = new
             SearchRecyclerViewAdapter.OnItemClickListener() {
@@ -111,10 +127,9 @@ public class SearchActivity extends BaseActivity {
         });
 
         options = new BitmapFactory.Options();
-        options.inSampleSize = 8;
         bitmap = BitmapFactory.decodeFile(filePath, options);
         imgPosture.setImageBitmap(bitmap);
-        scalar = (double) ViewUtil.dpToPx(POSTURE_HEIGHT) / bitmap.getHeight();
+        scalar = (double) dpToPx(POSTURE_HEIGHT) / imgPosture.getDrawable().getIntrinsicHeight();
 
         btnPostureAnalysis.setOnClickListener((view) -> {
             postureAnalysis();
@@ -134,6 +149,8 @@ public class SearchActivity extends BaseActivity {
         });
 
         initRecyclerView(imgPaths);
+
+        dragPosture.setSearchActivity(this);
     }
 
     private void initRecyclerView(List<String> paths) {
@@ -144,7 +161,32 @@ public class SearchActivity extends BaseActivity {
         recyclerViewSearch.setItemAnimator(new DefaultItemAnimator());
     }
 
+    private void initPostureMark() {
+        markPosture1.setVisibility(View.VISIBLE);
+        markPosture2.setVisibility(View.VISIBLE);
+        markPosture3.setVisibility(View.VISIBLE);
+        markPosture4.setVisibility(View.VISIBLE);
+
+        markOffset = ViewUtil.dpToPx(POSTURE_MARK_SIZE / 2);
+    }
+
+    private void setPostureMark() {
+        FrameLayout.LayoutParams lp1 = (FrameLayout.LayoutParams) markPosture1.getLayoutParams();
+        lp1.setMargins(viewPosture.getPoint1X() - markOffset, viewPosture.getPoint1Y() - markOffset, 0, 0);
+        markPosture1.setLayoutParams(lp1);
+        FrameLayout.LayoutParams lp2 = (FrameLayout.LayoutParams) markPosture2.getLayoutParams();
+        lp2.setMargins(viewPosture.getPoint2X() - markOffset, viewPosture.getPoint2Y() - markOffset, 0, 0);
+        markPosture2.setLayoutParams(lp2);
+        FrameLayout.LayoutParams lp3 = (FrameLayout.LayoutParams) markPosture3.getLayoutParams();
+        lp3.setMargins(viewPosture.getPoint3X() - markOffset, viewPosture.getPoint3Y() - markOffset, 0, 0);
+        markPosture3.setLayoutParams(lp3);
+        FrameLayout.LayoutParams lp4 = (FrameLayout.LayoutParams) markPosture4.getLayoutParams();
+        lp4.setMargins(viewPosture.getPoint4X() - markOffset, viewPosture.getPoint4Y() - markOffset, 0, 0);
+        markPosture4.setLayoutParams(lp4);
+    }
+
     private void postureAnalysis() {
+        ToastUtil.showShort("Posture Analyzing...");
         addSubscription(api.postureAnalysis(-1, -1, onlinePath)
                 .flatMap(NetworkFailureHandler.httpFailureFilter)
                 .subscribeOn(Schedulers.io())
@@ -156,17 +198,21 @@ public class SearchActivity extends BaseActivity {
 
                     viewPosture.setParams(context,
                             ViewUtil.getScreenWidth() / 2,
-                            (int) (scalar * bitmap.getWidth()),
-                            ViewUtil.dpToPx(300),
-                            imgPosture.getDrawable().getIntrinsicWidth() * options.inSampleSize,
-                            imgPosture.getDrawable().getIntrinsicHeight() * options.inSampleSize,
+                            (int) (scalar * imgPosture.getDrawable().getIntrinsicWidth()),
+                            dpToPx(POSTURE_HEIGHT),
+                            imgPosture.getDrawable().getIntrinsicWidth(),
+                            imgPosture.getDrawable().getIntrinsicHeight(),
                             params);
+
+                    initPostureMark();
+                    setPostureMark();
                     btnOnceSearch.setEnabled(true);
                     btnOnceSearch.setBackgroundColor(getResources().getColor(R.color.btn_bg));
                 }, NetworkFailureHandler.basicErrorHandler));
     }
 
     private void onceSearch() {
+        ToastUtil.showShort("Once Searching...");
         addSubscription(api.onceSearch(-1, -1, onlinePath, params.getX(), params.getY(),
                 params.getWidth(), params.getHeight(), 3)
                 .flatMap(NetworkFailureHandler.httpFailureFilter)
@@ -185,5 +231,33 @@ public class SearchActivity extends BaseActivity {
                     editS.setText(String.valueOf(params.getSaturation()));
                     editV.setText(String.valueOf(params.getValue()));
                 }, NetworkFailureHandler.basicErrorHandler));
+    }
+
+    public void setPostureMark(int markNum, int top, int left) {
+        int height, width;
+        switch (markNum) {
+            case 1:
+                height = params.getHeight() + params.getY() - top;
+                width = params.getWidth() + params.getX() - left;
+                params = new PostureParams(left, top, width, height);
+                break;
+            case 2:
+                height = params.getHeight() + params.getY() - top;
+                width = left - params.getX();
+                params = new PostureParams(params.getX(), top, width, height);
+                break;
+            case 3:
+                height = top - params.getY();
+                width = params.getWidth() + params.getX() - left;
+                params = new PostureParams(left, params.getY(), width, height);
+                break;
+            case 4:
+                height = top - params.getY();
+                width = left - params.getX();
+                params = new PostureParams(params.getX(), params.getY(), width, height);
+                break;
+        }
+        viewPosture.setPostureLoc(params);
+        setPostureMark();
     }
 }

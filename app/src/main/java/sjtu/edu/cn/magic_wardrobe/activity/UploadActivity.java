@@ -139,7 +139,6 @@ public class UploadActivity extends BaseActivity {
             vidPreview.setVisibility(View.GONE);
 
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 8;
             Bitmap bitmap = BitmapFactory.decodeFile(filePath, options);
             imgPreview.setImageBitmap(bitmap);
         } else {

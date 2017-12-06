@@ -10,9 +10,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="230dp"
-        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp">
+        android:orientation="horizontal">
 
         <FrameLayout
             android:layout_width="0dp"
@@ -24,13 +24,48 @@
                 android:layout_width="match_parent"
                 android:layout_height="230dp"
                 android:layout_gravity="center_horizontal"
-                android:src="@mipmap/ic_launcher"/>
+                android:src="@mipmap/ic_launcher" />
 
             <sjtu.edu.cn.magic_wardrobe.widget.PostureView
                 android:id="@+id/view_posture"
                 android:layout_width="match_parent"
                 android:layout_height="230dp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center" />
+
+            <sjtu.edu.cn.magic_wardrobe.widget.ViewDragFrameLayout
+                android:id="@+id/drag_posture"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/mark_posture_1"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:background="@color/red"
+                    android:visibility="gone"/>
+
+                <ImageView
+                    android:id="@+id/mark_posture_2"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:background="@color/red"
+                    android:visibility="gone"/>
+
+                <ImageView
+                    android:id="@+id/mark_posture_3"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:background="@color/red"
+                    android:visibility="gone"/>
+
+                <ImageView
+                    android:id="@+id/mark_posture_4"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:background="@color/red"
+                    android:visibility="gone"/>
+
+            </sjtu.edu.cn.magic_wardrobe.widget.ViewDragFrameLayout>
 
         </FrameLayout>
 
@@ -38,68 +73,68 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="vertical"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="H:"/>
+                    android:text="H:" />
 
                 <EditText
                     android:id="@+id/edit_h"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:text="0"/>
+                    android:text="0" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="S:"/>
+                    android:text="S:" />
 
                 <EditText
                     android:id="@+id/edit_s"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:text="0"/>
+                    android:text="0" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="V:"/>
+                    android:text="V:" />
 
                 <EditText
                     android:id="@+id/edit_v"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:focusable="false"
-                    android:text="0"/>
+                    android:text="0" />
 
             </LinearLayout>
 
@@ -107,20 +142,20 @@
                 android:id="@+id/btn_posture_analysis"
                 android:layout_width="150dp"
                 android:layout_height="30dp"
+                android:layout_marginTop="10dp"
                 android:background="@color/btn_bg"
                 android:text="Posture Analysis"
-                android:textColor="@color/white"
-                android:layout_marginTop="10dp"/>
+                android:textColor="@color/white" />
 
             <Button
                 android:id="@+id/btn_once_search"
                 android:layout_width="150dp"
                 android:layout_height="30dp"
+                android:layout_marginTop="10dp"
                 android:background="@color/gray"
                 android:enabled="false"
-                android:layout_marginTop="10dp"
                 android:text="Once Search"
-                android:textColor="@color/white"/>
+                android:textColor="@color/white" />
 
         </LinearLayout>
 
