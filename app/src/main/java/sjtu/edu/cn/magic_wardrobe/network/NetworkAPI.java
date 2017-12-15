@@ -26,7 +26,7 @@ import sjtu.edu.cn.magic_wardrobe.model.response.UploadResponse;
  * background -> foreground:x;y;width;height;
  * <p>
  * 2.一次检索
- * foreground -> background:0;gender;type;x1;y1;w;h;imgUrl;alo=3
+ * foreground -> background:0;gender;type;x1,y1,w,h;imgUrl;alo=3
  * background -> foreground:h;s;v;9;attr1;attr2;attr3;...attr9;img1addr;width1;height1;img2addr;width2;height2;...
  * <p>
  * 3.二次检索

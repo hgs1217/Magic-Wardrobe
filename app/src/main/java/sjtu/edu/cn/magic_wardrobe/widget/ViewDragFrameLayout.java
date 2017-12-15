@@ -17,6 +17,9 @@ import sjtu.edu.cn.magic_wardrobe.activity.SearchActivity;
 
 public class ViewDragFrameLayout extends FrameLayout {
 
+    private static final int DRAG_BORDER = 20;
+
+
     ViewDragHelper dragHelper;
 
     SearchActivity searchActivity;
@@ -41,10 +44,10 @@ public class ViewDragFrameLayout extends FrameLayout {
             @Override
             public int clampViewPositionVertical(View child, int top, int dy) {
                 topLoc = top;
-                if (top > getHeight() - child.getMeasuredHeight()) {
-                    topLoc = getHeight() - child.getMeasuredHeight();
-                } else if (top < 0) {
-                    topLoc = 0;
+                if (top > getHeight() - child.getMeasuredHeight() - DRAG_BORDER) {
+                    topLoc = getHeight() - child.getMeasuredHeight() - DRAG_BORDER;
+                } else if (top < DRAG_BORDER) {
+                    topLoc = DRAG_BORDER;
                 }
                 return topLoc;
             }
@@ -52,10 +55,10 @@ public class ViewDragFrameLayout extends FrameLayout {
             @Override
             public int clampViewPositionHorizontal(View child, int left, int dx) {
                 leftLoc = left;
-                if (left > getWidth() - child.getMeasuredWidth()) {
-                    leftLoc = getWidth() - child.getMeasuredWidth();
-                } else if (left < 0) {
-                    leftLoc = 0;
+                if (left > getWidth() - child.getMeasuredWidth() - DRAG_BORDER) {
+                    leftLoc = getWidth() - child.getMeasuredWidth() - DRAG_BORDER;
+                } else if (left < DRAG_BORDER) {
+                    leftLoc = DRAG_BORDER;
                 }
                 return leftLoc;
             }

@@ -10,7 +10,7 @@ public class Config {
 
     static public String BASE_URL = "http://202.120.38.141:8080";
 
-//    static public String BASE_URL = "http://192.168.0.105:8080";
+//    static public String BASE_URL = "http://192.168.0.100:8080";
 
     static public String IMAGE_GET_URL = BASE_URL + "/img/";
 

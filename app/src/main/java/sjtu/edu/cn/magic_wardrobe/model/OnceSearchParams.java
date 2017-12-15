@@ -14,14 +14,14 @@ public class OnceSearchParams {
     private Double hue;
     private Double saturation;
     private Double value;
-    private List<String> attributes;
+    private SearchAttribute attributes;
     private List<ImageInfo> imgInfos;
 
-    public OnceSearchParams(Double h, Double s, Double v, List<String> attrs, List<ImageInfo> infos) {
+    public OnceSearchParams(Double h, Double s, Double v, List<Integer> attrs, List<ImageInfo> infos) {
         hue = h;
         saturation = s;
         value = v;
-        attributes = new ArrayList<>(attrs);
+        attributes = new SearchAttribute(attrs);
         imgInfos = new ArrayList<>(infos);
     }
 
@@ -37,7 +37,7 @@ public class OnceSearchParams {
         return value;
     }
 
-    public List<String> getAttributes() {
+    public SearchAttribute getAttributes() {
         return attributes;
     }
 

@@ -9,19 +9,31 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <Button
-            android:id="@+id/btn_mode_upload"
-            android:layout_width="wrap_content"
+            android:id="@+id/btn_choose_image"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
+            android:layout_margin="15dp"
             android:background="@color/btn_bg"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:textSize="20sp"
-            android:text="Upload"
+            android:text="Choose Image"
+            android:textSize="16sp"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/btn_capture_image"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:background="@color/btn_bg"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:textSize="16sp"
+            android:text="@string/btnTakePicture"
             android:textColor="@color/white" />
 
     </LinearLayout>

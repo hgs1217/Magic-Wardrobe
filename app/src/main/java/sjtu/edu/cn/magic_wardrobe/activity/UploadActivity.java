@@ -29,7 +29,7 @@ import sjtu.edu.cn.magic_wardrobe.network.RetrofitClient;
 import sjtu.edu.cn.magic_wardrobe.utils.StorageUtil;
 import sjtu.edu.cn.magic_wardrobe.utils.ToastUtil;
 
-import static sjtu.edu.cn.magic_wardrobe.activity.UploadChooseActivity.LOAD_PIC;
+import static sjtu.edu.cn.magic_wardrobe.activity.MainActivity.LOAD_PIC;
 
 public class UploadActivity extends BaseActivity {
 
@@ -77,8 +77,8 @@ public class UploadActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        filePath = intent.getStringExtra(UploadChooseActivity.FILE_PATH);
-        isImage = intent.getBooleanExtra(UploadChooseActivity.IS_IMAGE, true);
+        filePath = intent.getStringExtra(MainActivity.FILE_PATH);
+        isImage = intent.getBooleanExtra(MainActivity.IS_IMAGE, true);
 
         api = RetrofitClient.getNetworkAPI();
 
@@ -129,7 +129,7 @@ public class UploadActivity extends BaseActivity {
         intent.setType("image/*");
         intent.putExtra("crop", true);
         intent.putExtra("return-data", true);
-        startActivityForResult(intent, UploadChooseActivity.LOAD_PIC);
+        startActivityForResult(intent, LOAD_PIC);
     }
 
     private void previewMedia(boolean isImage) {
@@ -191,8 +191,7 @@ public class UploadActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == LOAD_PIC) {
-
+        if (requestCode == MainActivity.LOAD_PIC) {
             if (data != null) {
                 Uri selectedImage = data.getData();
                 filePath = StorageUtil.imageGetPath(this, selectedImage);

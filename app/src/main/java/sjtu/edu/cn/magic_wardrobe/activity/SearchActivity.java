@@ -1,21 +1,24 @@
 package sjtu.edu.cn.magic_wardrobe.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.flask.colorpicker.ColorPickerView;
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +27,9 @@ import butterknife.BindView;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import sjtu.edu.cn.magic_wardrobe.R;
+import sjtu.edu.cn.magic_wardrobe.model.OnceSearchParams;
 import sjtu.edu.cn.magic_wardrobe.model.PostureParams;
+import sjtu.edu.cn.magic_wardrobe.model.SearchAttribute;
 import sjtu.edu.cn.magic_wardrobe.model.response.ImageInfo;
 import sjtu.edu.cn.magic_wardrobe.model.response.OnceSearchResponse;
 import sjtu.edu.cn.magic_wardrobe.model.response.PostureResponse;
@@ -32,6 +37,7 @@ import sjtu.edu.cn.magic_wardrobe.network.NetworkAPI;
 import sjtu.edu.cn.magic_wardrobe.network.NetworkFailureHandler;
 import sjtu.edu.cn.magic_wardrobe.network.RetrofitClient;
 import sjtu.edu.cn.magic_wardrobe.utils.ToastUtil;
+import sjtu.edu.cn.magic_wardrobe.utils.Util;
 import sjtu.edu.cn.magic_wardrobe.utils.ViewUtil;
 import sjtu.edu.cn.magic_wardrobe.widget.PostureView;
 import sjtu.edu.cn.magic_wardrobe.widget.SearchRecyclerViewAdapter;
@@ -41,8 +47,6 @@ import static sjtu.edu.cn.magic_wardrobe.utils.ViewUtil.dpToPx;
 
 public class SearchActivity extends BaseActivity {
 
-    @BindView(R.id.layout_search)
-    LinearLayout mainLayout;
     @BindView(R.id.img_posture)
     ImageView imgPosture;
     @BindView(R.id.view_posture)
@@ -51,12 +55,34 @@ public class SearchActivity extends BaseActivity {
     Button btnPostureAnalysis;
     @BindView(R.id.btn_once_search)
     Button btnOnceSearch;
-    @BindView(R.id.edit_h)
-    EditText editH;
-    @BindView(R.id.edit_s)
-    EditText editS;
-    @BindView(R.id.edit_v)
-    EditText editV;
+    @BindView(R.id.color_search)
+    ImageView colorSearch;
+    @BindView(R.id.text_h)
+    TextView textH;
+    @BindView(R.id.text_s)
+    TextView textS;
+    @BindView(R.id.text_v)
+    TextView textV;
+    @BindView(R.id.text_age)
+    TextView textAge;
+    @BindView(R.id.text_category)
+    TextView textCategory;
+    @BindView(R.id.text_collar)
+    TextView textCollar;
+    @BindView(R.id.text_material)
+    TextView textMaterial;
+    @BindView(R.id.text_pattern)
+    TextView textPattern;
+    @BindView(R.id.text_placket)
+    TextView textPlacket;
+    @BindView(R.id.text_shape)
+    TextView textShape;
+    @BindView(R.id.text_sleeve)
+    TextView textSleeve;
+    @BindView(R.id.text_style)
+    TextView textStyle;
+    @BindView(R.id.layout_color)
+    LinearLayout layoutColor;
     @BindView(R.id.mark_posture_1)
     ImageView markPosture1;
     @BindView(R.id.mark_posture_2)
@@ -93,6 +119,7 @@ public class SearchActivity extends BaseActivity {
     private double scalar;
     private NetworkAPI api;
     private int markOffset;
+    private int currentColor;
 
     private SearchRecyclerViewAdapter.OnItemClickListener searchOnItemClickListener = new
             SearchRecyclerViewAdapter.OnItemClickListener() {
@@ -111,6 +138,7 @@ public class SearchActivity extends BaseActivity {
 
         context = this;
         api = RetrofitClient.getNetworkAPI();
+        currentColor = Color.argb(255, 0, 0, 0);
 
         initView();
     }
@@ -138,17 +166,29 @@ public class SearchActivity extends BaseActivity {
         btnOnceSearch.setOnClickListener((view) -> {
             onceSearch();
         });
-
-        mainLayout.setOnClickListener((View v) -> {
-            InputMethodManager imm = (InputMethodManager)
-                    context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-            editH.clearFocus();
-            editS.clearFocus();
-            editV.clearFocus();
+        layoutColor.setOnClickListener((view) -> {
+            ColorPickerDialogBuilder
+                    .with(context)
+                    .setTitle("Choose a color")
+                    .initialColor(currentColor)
+                    .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                    .density(12)
+                    .setOnColorSelectedListener((int selectedColor) -> {})
+                    .setPositiveButton("ok", (DialogInterface dialog, int selectedColor, Integer[] allColors) -> {
+                        currentColor = selectedColor;
+                        resetColor(Integer.toHexString(selectedColor));
+                    })
+                    .setNegativeButton("cancel", (DialogInterface dialog, int which) -> {
+                    })
+                    .build()
+                    .show();
         });
 
         initRecyclerView(imgPaths);
+
+        params = new PostureParams(100, 100, 100, 100);
+        btnOnceSearch.setEnabled(true);
+        btnOnceSearch.setBackgroundColor(getResources().getColor(R.color.btn_bg));
 
         dragPosture.setSearchActivity(this);
     }
@@ -168,6 +208,34 @@ public class SearchActivity extends BaseActivity {
         markPosture4.setVisibility(View.VISIBLE);
 
         markOffset = ViewUtil.dpToPx(POSTURE_MARK_SIZE / 2);
+    }
+
+    private void fillParams(OnceSearchParams pms) {
+        SearchAttribute attr = pms.getAttributes();
+        textAge.setText(attr.getContent(SearchAttribute.MODE_AGE));
+        textCategory.setText(attr.getContent(SearchAttribute.MODE_CATEGORY));
+        textCollar.setText(attr.getContent(SearchAttribute.MODE_COLLAR));
+        textMaterial.setText(attr.getContent(SearchAttribute.MODE_MATERIAL));
+        textPattern.setText(attr.getContent(SearchAttribute.MODE_PATTERN));
+        textPlacket.setText(attr.getContent(SearchAttribute.MODE_PLACKET));
+        textShape.setText(attr.getContent(SearchAttribute.MODE_SHAPE));
+        textSleeve.setText(attr.getContent(SearchAttribute.MODE_SLEEVE));
+        textStyle.setText(attr.getContent(SearchAttribute.MODE_STYLE));
+
+        textH.setText(String.valueOf(Math.round(pms.getHue())));
+        textS.setText(String.valueOf((double) Math.round(pms.getSaturation() * 100) / 100));
+        textV.setText(String.valueOf((double) Math.round(pms.getValue() * 100) / 100));
+        int[] rgb = Util.hsvToRgba(pms.getHue(), pms.getSaturation(), pms.getValue());
+        currentColor = Color.argb(255, rgb[0], rgb[1], rgb[2]);
+        colorSearch.setBackgroundColor(currentColor);
+    }
+
+    private void resetColor(String rgba) {
+        double[] hsv = Util.rgbstrToHsv(rgba.substring(2));
+        textH.setText(String.valueOf(Math.round(hsv[0])));
+        textS.setText(String.valueOf((double) Math.round(hsv[1] * 100) / 100));
+        textV.setText(String.valueOf((double) Math.round(hsv[2] * 100) / 100));
+        colorSearch.setBackgroundColor(currentColor);
     }
 
     private void setPostureMark() {
@@ -227,9 +295,7 @@ public class SearchActivity extends BaseActivity {
                         imgPaths.add(info.getImgUrl());
                     }
                     initRecyclerView(imgPaths);
-                    editH.setText(String.valueOf(params.getHue()));
-                    editS.setText(String.valueOf(params.getSaturation()));
-                    editV.setText(String.valueOf(params.getValue()));
+                    fillParams(params);
                 }, NetworkFailureHandler.basicErrorHandler));
     }
 

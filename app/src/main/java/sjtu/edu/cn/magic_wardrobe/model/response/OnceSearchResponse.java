@@ -19,7 +19,7 @@ public class OnceSearchResponse extends HttpResponse {
     @SerializedName("v")
     private Double v;
     @SerializedName("attrs")
-    private List<String> attrs;
+    private List<Integer> attrs;
     @SerializedName("images")
     private List<ImageInfo> images;
 
