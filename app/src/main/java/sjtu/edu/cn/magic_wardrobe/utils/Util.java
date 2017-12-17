@@ -38,7 +38,7 @@ public class Util {
         if (delta < 0.00001) {
             H = 0;
         } else if (cmax == r) {
-            H = 60 * (((g-b)/delta) % 6);
+            H = 60 * ((((g-b)/delta) + 6) % 6);
         } else if (cmax == g) {
             H = 60 * (((b-r)/delta) + 2);
         } else if (cmax == b) {

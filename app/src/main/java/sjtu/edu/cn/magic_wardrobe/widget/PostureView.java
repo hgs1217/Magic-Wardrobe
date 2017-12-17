@@ -8,7 +8,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import sjtu.edu.cn.magic_wardrobe.activity.SearchActivity;
 import sjtu.edu.cn.magic_wardrobe.model.PostureParams;
+import sjtu.edu.cn.magic_wardrobe.utils.ViewUtil;
 
 
 /**
@@ -32,7 +34,11 @@ public class PostureView extends View {
     private int point3Y;
     private int point4X;
     private int point4Y;
+    double heightScalar;
+    double widthScalar;
+    double offset;
     private PostureParams params;
+    private int markOffset = ViewUtil.dpToPx(SearchActivity.POSTURE_MARK_SIZE) / 2;
 
 
     public PostureView(Context c) {
@@ -52,7 +58,7 @@ public class PostureView extends View {
         super.onDraw(canvas);
 
         if (context != null) {
-            calculateParams();
+//            calculateParams();
 
 //            Log.i("TEST", String.valueOf(ViewUtil.getScreenHeight())+", "+String.valueOf(ViewUtil.getScreenWidth()));
 //
@@ -77,9 +83,9 @@ public class PostureView extends View {
     }
 
     private void calculateParams() {
-        double heightScalar = (double) height / photoHeight;
-        double widthScalar = (double) width / photoWidth;
-        double offset = (viewWidth - width) / 2.0;
+        heightScalar = (double) height / photoHeight;
+        widthScalar = (double) width / photoWidth;
+        offset = (viewWidth - width) / 2.0;
 
         point1X = (int) (params.getX() * widthScalar + offset);
         point1Y = (int) (params.getY() * heightScalar);
@@ -111,6 +117,38 @@ public class PostureView extends View {
         calculateParams();
 
         invalidate();
+    }
+
+    public void setPostureMark(int markNum, int top, int left) {
+        switch (markNum) {
+            case 1:
+                point1X = point3X = left + markOffset;
+                point1Y = point2Y = top + markOffset;
+                break;
+            case 2:
+                point2X = point4X = left + markOffset;
+                point2Y = point1Y = top + markOffset;
+                break;
+            case 3:
+                point3X = point1X = left + markOffset;
+                point3Y = point4Y = top + markOffset;
+                break;
+            case 4:
+                point4X = point2X = left + markOffset;
+                point4Y = point3Y = top + markOffset;
+                break;
+        }
+        invalidate();
+    }
+
+    public PostureParams getPostureParams() {
+        int x = (int) Math.abs(((point1X - offset) / widthScalar));
+        int y = (int) Math.abs((point1Y / heightScalar));
+        int width = (int) Math.abs(((point2X - offset) / widthScalar - x));
+        int height = (int) Math.abs((point3Y / heightScalar - y));
+
+//        Log.i("TESTV", String.valueOf(x)+"\t"+String.valueOf(y)+"\t"+String.valueOf(width)+"\t"+String.valueOf(height));
+        return new PostureParams(x, y, width, height);
     }
 
     public int getPoint1X() {

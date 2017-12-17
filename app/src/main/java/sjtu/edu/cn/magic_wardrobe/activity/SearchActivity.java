@@ -186,9 +186,9 @@ public class SearchActivity extends BaseActivity {
 
         initRecyclerView(imgPaths);
 
-        params = new PostureParams(100, 100, 100, 100);
-        btnOnceSearch.setEnabled(true);
-        btnOnceSearch.setBackgroundColor(getResources().getColor(R.color.btn_bg));
+//        params = new PostureParams(100, 100, 100, 100);
+//        btnOnceSearch.setEnabled(true);
+//        btnOnceSearch.setBackgroundColor(getResources().getColor(R.color.btn_bg));
 
         dragPosture.setSearchActivity(this);
     }
@@ -238,7 +238,7 @@ public class SearchActivity extends BaseActivity {
         colorSearch.setBackgroundColor(currentColor);
     }
 
-    private void setPostureMark() {
+    private void setPostureMarkLoc() {
         FrameLayout.LayoutParams lp1 = (FrameLayout.LayoutParams) markPosture1.getLayoutParams();
         lp1.setMargins(viewPosture.getPoint1X() - markOffset, viewPosture.getPoint1Y() - markOffset, 0, 0);
         markPosture1.setLayoutParams(lp1);
@@ -261,7 +261,7 @@ public class SearchActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(response -> ((PostureResponse) response).getPostureParams())
                 .subscribe(params -> {
-                    ToastUtil.showLong("Posture Response Success");
+                    ToastUtil.showShort("Posture Response Success");
                     this.params = params;
 
                     viewPosture.setParams(context,
@@ -273,7 +273,7 @@ public class SearchActivity extends BaseActivity {
                             params);
 
                     initPostureMark();
-                    setPostureMark();
+                    setPostureMarkLoc();
                     btnOnceSearch.setEnabled(true);
                     btnOnceSearch.setBackgroundColor(getResources().getColor(R.color.btn_bg));
                 }, NetworkFailureHandler.basicErrorHandler));
@@ -288,7 +288,7 @@ public class SearchActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(response -> ((OnceSearchResponse) response).getOnceSearchParams())
                 .subscribe(params -> {
-                    ToastUtil.showLong("Once Search Success");
+                    ToastUtil.showShort("Once Search Success");
                     imgPaths.clear();
                     List<ImageInfo> infos = params.getImgInfos();
                     for (ImageInfo info : infos) {
@@ -300,30 +300,8 @@ public class SearchActivity extends BaseActivity {
     }
 
     public void setPostureMark(int markNum, int top, int left) {
-        int height, width;
-        switch (markNum) {
-            case 1:
-                height = params.getHeight() + params.getY() - top;
-                width = params.getWidth() + params.getX() - left;
-                params = new PostureParams(left, top, width, height);
-                break;
-            case 2:
-                height = params.getHeight() + params.getY() - top;
-                width = left - params.getX();
-                params = new PostureParams(params.getX(), top, width, height);
-                break;
-            case 3:
-                height = top - params.getY();
-                width = params.getWidth() + params.getX() - left;
-                params = new PostureParams(left, params.getY(), width, height);
-                break;
-            case 4:
-                height = top - params.getY();
-                width = left - params.getX();
-                params = new PostureParams(params.getX(), params.getY(), width, height);
-                break;
-        }
-        viewPosture.setPostureLoc(params);
-        setPostureMark();
+        viewPosture.setPostureMark(markNum, top, left);
+        params = viewPosture.getPostureParams();
+        setPostureMarkLoc();
     }
 }

@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import sjtu.edu.cn.magic_wardrobe.R;
 import sjtu.edu.cn.magic_wardrobe.activity.SearchActivity;
+import sjtu.edu.cn.magic_wardrobe.utils.ViewUtil;
 
 /**
  * Created by HgS_1217_ on 2017/12/6.
@@ -17,7 +18,7 @@ import sjtu.edu.cn.magic_wardrobe.activity.SearchActivity;
 
 public class ViewDragFrameLayout extends FrameLayout {
 
-    private static final int DRAG_BORDER = 20;
+    private static final int DRAG_BORDER = ViewUtil.dpToPx(SearchActivity.POSTURE_MARK_SIZE) / 2;
 
 
     ViewDragHelper dragHelper;
@@ -29,11 +30,18 @@ public class ViewDragFrameLayout extends FrameLayout {
     ImageView markPosture3;
     ImageView markPosture4;
 
-    int topLoc;
-    int leftLoc;
+    private int topLoc;
+    private int leftLoc;
+    private int height;
+    private int width;
+    private int offset;
 
     public ViewDragFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        height = ViewUtil.dpToPx(SearchActivity.POSTURE_HEIGHT);
+        width = ViewUtil.getScreenWidth() / 2;
+        offset = ViewUtil.dpToPx(SearchActivity.POSTURE_MARK_SIZE) / 2;
 
         dragHelper = ViewDragHelper.create(this, 1.0f, new ViewDragHelper.Callback() {
             @Override
@@ -43,22 +51,24 @@ public class ViewDragFrameLayout extends FrameLayout {
 
             @Override
             public int clampViewPositionVertical(View child, int top, int dy) {
-                topLoc = top;
-                if (top > getHeight() - child.getMeasuredHeight() - DRAG_BORDER) {
-                    topLoc = getHeight() - child.getMeasuredHeight() - DRAG_BORDER;
-                } else if (top < DRAG_BORDER) {
-                    topLoc = DRAG_BORDER;
+                if (top > height - offset - DRAG_BORDER) {
+                    topLoc = height - offset - DRAG_BORDER;
+                } else if (top < DRAG_BORDER - offset) {
+                    topLoc = DRAG_BORDER - offset;
+                } else {
+                    topLoc = top;
                 }
                 return topLoc;
             }
 
             @Override
             public int clampViewPositionHorizontal(View child, int left, int dx) {
-                leftLoc = left;
-                if (left > getWidth() - child.getMeasuredWidth() - DRAG_BORDER) {
-                    leftLoc = getWidth() - child.getMeasuredWidth() - DRAG_BORDER;
-                } else if (left < DRAG_BORDER) {
-                    leftLoc = DRAG_BORDER;
+                if (left > width - offset - DRAG_BORDER) {
+                    leftLoc = width - offset - DRAG_BORDER;
+                } else if (left < DRAG_BORDER - offset) {
+                    leftLoc = DRAG_BORDER - offset;
+                } else {
+                    leftLoc = left;
                 }
                 return leftLoc;
             }
